@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planner</title>
+    <style>
+.button {
+    background-color: #008cff; 
+    border: none;
+    color: white;
+    padding: 15px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .input-box{
+    /*border: none;*/
+    padding: 15px 15px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 50vw;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .checkbox{
+    background-color: #a1d5ff;
+    border-style: solid;
+    border-color: white;
+    padding: 15px 15px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 50vw;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .check{
+      width:16px;
+      height:16px;
+  }
+
+  .checkpoint{
+    font-size: 20px;
+    font-weight: bold;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .board{  
+    width: 50vw;
+  }
+
+  .font_fam{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;  
+  }
+
+    </style>
+</head>
+<body>
+    <div id="content">
+        
+    </div>
+</body>
+    <script>
+        var boards = {}
+
+var to_do = {}
+
+var current_board;
+
+function render_board(){
+    var html = '<h2 class="font_fam">Boards</h2><br/>'
+
+    for(i =0; i<Object.keys(boards).length; i++){
+        html = html + '<button class="button board" onclick="show_board('+Object.entries(boards)[i][0]+')">'+Object.entries(boards)[i][1]+'</button> <button class="button" onclick="remove_board('+Object.entries(boards)[i][0]+')">Remove Board</button><br/><br/>'
+    }
+    html = html + '<br/><input class="input-box" id="add_board_text" type="text"></input><button class="button"  onclick="add_board()">Add</button>';
+    
+    document.getElementById('content').innerHTML = html
+
+}
+
+
+function render_to_do(){
+    var html = '<button class="button" onclick="render_board()">Back</button><br/> <br/>'
+
+    for(i =0; i<Object.keys(to_do).length; i++){
+        html = html + '<div class="checkbox"><input class="check" onchange="change(this, '+Object.keys(to_do)[i]+')"'+ (Object.entries(to_do)[i][1][1]?'checked':'') +' type="checkbox" id="'+Object.keys(to_do)[i]+'">  <label style="color:'+ (Object.entries(to_do)[i][1][1]?'white':'black') +'" class="checkpoint" for="'+Object.keys(to_do)[i]+'">'+ (Object.entries(to_do)[i][1][0]) +'</label></div>           <button class="button" onclick="remove('+Object.keys(to_do)[i]+')">remove</button><br>';
+    }
+
+    html = html + '<br/><input class="input-box" id="add_text" type="text"></input><button class="button" onclick="add()">Add</button>';
+    
+    document.getElementById('content').innerHTML = html
+}
+
+function show_board(id){
+    to_do = {};
+    console.log(id)
+    current_board = id;
+    if(window.localStorage.getItem(id)){
+        to_do = JSON.parse(window.localStorage.getItem(id))
+    }
+    render_to_do();
+}
+
+function change(checkboxElem, id) {
+    to_do[id][1] = checkboxElem.checked;
+    console.log(to_do)
+    window.localStorage.setItem(current_board, JSON.stringify(to_do))
+    render_to_do();
+}
+
+function remove(id){
+    delete to_do[id];
+    window.localStorage.setItem(current_board, JSON.stringify(to_do))
+    render_to_do();
+}
+
+function add(){
+    to_do[Math.random()] = [
+        document.getElementById("add_text").value,
+        false,
+    ]
+    window.localStorage.setItem(current_board, JSON.stringify(to_do))
+    
+    render_to_do();
+}
+
+function add_board(){
+    if(document.getElementById('add_board_text').value == '') return null;
+
+    boards[Math.random()] = document.getElementById('add_board_text').value;
+
+    window.localStorage.setItem('b', JSON.stringify(boards))
+
+    render_board();
+}
+
+function remove_board(id){
+    if(window.confirm("Are you sure?")){
+        console.log("success");
+        delete boards[id];
+    
+        window.localStorage.removeItem(id);
+        window.localStorage.setItem('b', JSON.stringify(boards));
+
+        render_board(); 
+        return null;
+
+    }else{
+        return null;
+    }
+}
+
+
+
+function start(){
+    boards = {};
+    if(window.localStorage.getItem('b')){
+        boards = JSON.parse(window.localStorage.getItem('b'))
+    }
+    render_board();
+}
+
+start()
+    </script>
+</html>
